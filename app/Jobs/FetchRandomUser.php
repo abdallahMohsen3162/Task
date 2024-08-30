@@ -16,12 +16,17 @@ class FetchRandomUser implements ShouldQueue
 
     public function handle()
     {
-        $response = Http::get('https://randomuser.me/api/');
+        try {
+            $response = Http::get('https://randomuser.me/api/');
 
-        if ($response->successful()) {
-            Log::info('Random User API Response:', $response->json('results'));
-        } else {
-            Log::error('Failed to fetch random user data');
+            if ($response->successful()) {
+                $data = $response->json();
+                Log::info('Random User API Results:', $data['results']);
+            } else {
+                Log::error('Failed to fetch random user data. Status: ' . $response->status());
+            }
+        } catch (\Exception $e) {
+            Log::error('Error fetching random user data: ' . $e->getMessage());
         }
     }
 }
